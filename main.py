@@ -7,16 +7,21 @@ from draw import draw_shape
 from line import create_line
 from circle import create_ball
 
-from gravity import calc_pos_and_vel
 from collider import collide_inelastic
 
-g = 10
-w, h = 200, 400
+g = 9.8
+w, h = 250, 500
 kexit = 27
 
 canvas = np.ones((h, w))
+
 ball = create_ball(pos=[0, w//2-10])
-line = create_line((h-2, 0), (h//4, w-1))
+ball.a = [g, 0]
+ball.mass = 10.0
+
+#line = create_line((h-2, 0), (h//2, w-1))
+line = create_line((h//2, 0), (h-2, w-1))
+line.restitution = 10.0
 
 shapes = [ball, line]
 def shdUpdate():
@@ -37,14 +42,8 @@ while(1):
         draw_shape(canvas, line)
         collide_inelastic(ball, line)
 
-        ay = sum(force.vec[0] for force in ball.forces)
-        y, vy = calc_pos_and_vel(ball.bbox.center[0], ball.vel[0], a=ay, g=g, dt=0.125)
-
-        ax= sum(force.vec[1] for force in ball.forces)
-        x, vx = calc_pos_and_vel(ball.bbox.center[1], ball.vel[1], a=ax, g=0, dt=0.125)
-
-        ball.setPos([y, x])
-        ball.setVel([vy, vx])
+        for shape in shapes:
+            shape.nextPos()
 
     cv.imshow('canvas', canvas)
 

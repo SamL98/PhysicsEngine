@@ -11,6 +11,4 @@ velocity given an initial position and velocity.
 :param dt: interval of time elapsed form last calculation
 """
 def calc_pos_and_vel(x, v, g=10, a=0, dt=0.5):
-    x += v*dt + .5*(g+a)*dt**2
-    v += (g+a)*dt
-    return x, v
+    

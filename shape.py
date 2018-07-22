@@ -1,4 +1,4 @@
-from force import Force
+import numpy as np
 
 """ Class to hold the bounding box of a drawn object """
 class BBox(object):
@@ -42,10 +42,15 @@ class Shape(object):
 	"""
 	:param bbox: a BBox object representing the position of the object
 	"""
-	def __init__(self, bbox, vel=[0.0, 0.0]):
+	def __init__(self, bbox, m=0.0, g=None, vel=[0.0, 0.0]):
 		self.bbox = bbox
-		self.vel = vel
-		self.forces = []
+		self.x = np.array([bbox.center[0], bbox.center[1]])
+		self.v = np.array(vel)
+		self.a = None
+		if not g is None:
+			self.a = [g, 0]
+		self.restitution = 2.75
+		self.mass = m
 		self.needsUpdate = False
 
 	"""
@@ -58,15 +63,25 @@ class Shape(object):
 
 	def setVel(self, vel):
 		self.needsUpdate = True
-		self.vel = vel
+		self.v = np.array(vel)
 		if self.isAtRest():
 			self.needsUpdate = False
 
 	def isAtRest(self):
-		return self.vel[0] == 0 and self.vel[1] == 0
+		return self.v[0] == 0 and self.v[1] == 0
 
-	def addForce(self, force):
-		self.forces.append(force)
+	def nextPos(self, dt=0.125):
+		if self.a is None: return
 
-	def hasForceFrom(self, obj):
-		return obj in [force.source for force in self.forces]
+		x = np.zeros(2)
+		v = np.zeros(2)
+
+		x[0] = self.x[0] + self.v[0]*dt + .5*self.a[0]*dt**2
+		v[0] = self.v[0] + self.a[0]*dt
+
+		x[1] = self.x[1] + self.v[1]*dt + .5*self.a[1]*dt**2
+		v[1] = self.v[1] + self.a[1]*dt
+
+		self.x = x
+		self.setPos((x[0], x[1]))
+		self.setVel(v)

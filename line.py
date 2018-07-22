@@ -77,6 +77,6 @@ def draw_line(canvas, bbox, m):
 			i, j = i, j + 1
 
 			m_accum += m
-			if abs(m_accum - int(m_accum)) < 1e-5:
-				i -= int(m_accum)
+			if abs(m_accum - int(np.round(m_accum))) < 1e-4:
+				i -= int(np.round(m_accum))
 				m_accum = 0
